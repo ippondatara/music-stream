@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca - Music Stream</title>
+
+<style>
+:root {
+    --bg-dark: #081c34;
+    --sidebar: #061628;
+    --primary: #5c7ea6;
+    --card: #0f2a4a;
+    --accent: #4c6ef5;
+    --text: #fff;
+    --muted: #b0c4de;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text);
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 220px;
+    background: var(--sidebar);
+    height: 100vh;
+    padding: 20px;
+}
+
+.logo {
+    font-style: italic;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.menu a {
+    display: block;
+    text-decoration: none;
+    color: var(--muted);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    transition: 0.2s;
+}
+
+.menu a:hover {
+    background: var(--card);
+    color: white;
+}
+
+/* MAIN */
+.main {
+    flex: 1;
+    padding: 30px;
+}
+
+/* HEADER */
+.topbar {
+    margin-bottom: 30px;
+}
+
+.topbar h2 {
+    font-size: 28px;
+}
+
+/* GRID PLAYLISTS */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: var(--card);
+    padding: 15px;
+    border-radius: 12px;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.card:hover {
+    transform: translateY(-5px) scale(1.03);
+    background: #14365e;
+}
+
+/* COVER */
+.cover {
+    width: 100%;
+    height: 140px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+/* COLORES DIFERENTES */
+.card:nth-child(1) .cover {
+    background: linear-gradient(135deg, #ff6b6b, #f06595);
+}
+.card:nth-child(2) .cover {
+    background: linear-gradient(135deg, #845ef7, #5c7cfa);
+}
+.card:nth-child(3) .cover {
+    background: linear-gradient(135deg, #20c997, #38d9a9);
+}
+.card:nth-child(4) .cover {
+    background: linear-gradient(135deg, #fcc419, #ff922b);
+}
+
+.title {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.subtitle {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* DESCRIPCIÓN OCULTA */
+.info {
+    max-height: 0;
+    overflow: hidden;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 10px;
+    transition: 0.3s ease;
+}
+
+/* CUANDO ESTÁ ACTIVA */
+.card.active .info {
+    max-height: 100px;
+}
+
+.card.active {
+    background: #1b3f6b;
+    transform: scale(1.02);
+}
+
+/* RESPONSIVE */
+@media (max-width: 700px) {
+    .sidebar {
+        display: none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="logo">Music Stream</div>
+
+    <div class="menu">
+        <a href="index.html">🏠 Inicio</a>
+        <a href="biblioteca.html">📚 Biblioteca</a>
+        <a href="reproductor.html">▶ Reproductor</a>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <div class="topbar">
+        <h2>Biblioteca</h2>
+    </div>
+
+    <div class="grid">
+
+        <div class="card" onclick="toggleInfo(this)">
+            <div class="cover"></div>
+            <div class="title">V1VID</div>
+            <div class="subtitle">album de jenni :D</div>
+            <div class="info">
+                Beats intensos con estilo nocturno, perfecto para concentrarte o sentir energía.
+            </div>
+        </div>
+
+        <div class="card" onclick="toggleInfo(this)">
+            <div class="cover"></div>
+            <div class="title">Till 2 AM</div>
+            <div class="subtitle">album de luciana</div>
+            <div class="info">
+                Música relajada y emocional, ideal para estudiar o escuchar de noche.
+            </div>
+        </div>
+
+        <div class="card" onclick="toggleInfo(this)">
+            <div class="cover"></div>
+            <div class="title">Relajación</div>
+            <div class="subtitle">album de mia</div>
+            <div class="info">
+                Sonidos suaves y ambientales para reducir el estrés y mejorar tu concentración.
+            </div>
+        </div>
+
+        <div class="card" onclick="toggleInfo(this)">
+            <div class="cover"></div>
+            <div class="title">SIUUU</div>
+            <div class="subtitle">album de misuuu</div>
+            <div class="info">
+                Tracks motivacionales y energéticos para entrenar o activarte.
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- SCRIPT -->
+<script>
+function toggleInfo(card) {
+    if (card.classList.contains("active")) {
+        card.classList.remove("active");
+        return;
+    }
+
+    document.querySelectorAll(".card").forEach(c => {
+        c.classList.remove("active");
+    });
+
+    card.classList.add("active");
+}
+</script>
+
+</body>
+</html>

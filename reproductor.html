@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reproductor</title>
+
+<style>
+:root {
+    --accent: #4c6ef5;
+    --card: rgba(15,42,74,0.85);
+    --text: #fff;
+    --muted: #b0c4de;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-size: cover;
+    background-position: center;
+    transition: background 0.5s ease;
+}
+
+/* BLUR + OSCURO */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    backdrop-filter: blur(10px);
+    background: rgba(0,0,0,0.6);
+    z-index: -1;
+}
+
+/* PLAYER */
+.main {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.player {
+    width: 320px;
+    background: var(--card);
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.cover {
+    height: 180px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    background-size: cover;
+    background-position: center;
+}
+
+/* INFO */
+#title {
+    font-weight: bold;
+    color: #FFF;
+}
+
+#artist {
+    color: var(--muted);
+    margin-bottom: 10px;
+}
+
+/* PROGRESS */
+.progress-container {
+    height: 6px;
+    background: #1a3a5a;
+    border-radius: 5px;
+    margin: 15px 0;
+    cursor: pointer;
+}
+
+.progress {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+}
+
+/* CONTROLS */
+.controls {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.play {
+    background: var(--accent);
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 18px;
+}
+
+.loop-active {
+    color: var(--accent);
+}
+
+/* PANEL */
+.song-panel {
+    position: fixed;
+    right: -260px;
+    top: 0;
+    width: 260px;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    padding: 20px;
+    transition: 0.3s;
+    overflow-y: auto;
+}
+
+.song-panel.open {
+    right: 0;
+}
+
+.song {
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 5px;
+    color: #ffffff;
+}
+
+.song.active {
+    background: rgba(255,255,255,0.2);
+}
+
+.song:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.toggle {
+    position: fixed;
+    right: 10px;
+    top: 20px;
+    background: var(--accent);
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.back-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    backdrop-filter: blur(10px);
+    transition: 0.2s;
+}
+
+.back-btn:hover {
+    background: rgba(0,0,0,0.8);
+}
+</style>
+</head>
+
+<body>
+<a href="biblioteca.html" class="back-btn">←</a>
+<div class="main">
+    <div class="player">
+        <div class="cover" id="cover"></div>
+
+        <h3 id="title"></h3>
+        <p id="artist"></p>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="prev">⏮</button>
+            <button class="btn play" id="play">▶</button>
+            <button class="btn" id="next">⏭</button>
+            <button class="btn" id="loop">↺</button>
+        </div>
+    </div>
+</div>
+
+<div class="song-panel" id="panel"></div>
+<button class="toggle" id="toggle">☰</button>
+
+<audio id="audio"></audio>
+
+<script>
+const songs = [
+    {
+        title: "V1ViD",
+        artist: "Jennifer",
+        src: "Musicas/V1ViD.mp3",
+        cover: "https://i.pinimg.com/736x/2b/00/ca/2b00ca59cf2363554ebcd0081e246dfd.jpg"
+    },
+    {
+        title: "Cuento Chino",
+        artist: "Misu",
+        src: "Musicas/Swing.mp3",
+        cover: "https://i.pinimg.com/736x/f2/f3/b1/f2f3b10f1e24055248b08f96e242a1a2.jpg"
+    },
+    {
+        title: "Midnight Engine Chase",
+        artist: "Mia",
+        src: "Musicas/Midnight Engine Chase.mp3",
+        cover: "https://i.pinimg.com/1200x/1e/4f/ca/1e4fca5deebeef628a036947805b89f0.jpg"
+    },
+    {
+        title: "Till 2AM",
+        artist: "Luciana",
+        src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+        cover: "https://i.pinimg.com/736x/25/4c/28/254c28cc1158f67fd8fbf3303372d4d7.jpg"
+    }
+];
+
+let current = Math.floor(Math.random() * songs.length);
+let isLoop = false;
+
+const audio = document.getElementById("audio");
+const title = document.getElementById("title");
+const artist = document.getElementById("artist");
+const cover = document.getElementById("cover");
+const playBtn = document.getElementById("play");
+const progress = document.getElementById("progress");
+const panel = document.getElementById("panel");
+
+/* LOAD SONG */
+function loadSong(i){
+    const s = songs[i];
+
+    title.textContent = s.title;
+    artist.textContent = s.artist;
+    audio.src = s.src;
+
+    cover.style.backgroundImage = `url(${s.cover})`;
+    document.body.style.backgroundImage = `url(${s.cover})`;
+
+    updateActiveSong();
+}
+
+/* PLAY / PAUSE */
+function playSong(){
+    audio.play();
+    playBtn.textContent = "⏸";
+}
+
+function pauseSong(){
+    audio.pause();
+    playBtn.textContent = "▶";
+}
+
+playBtn.onclick = () => audio.paused ? playSong() : pauseSong();
+
+/* NEXT / PREV */
+document.getElementById("next").onclick = () => {
+    current = (current + 1) % songs.length;
+    loadSong(current);
+    playSong();
+};
+
+document.getElementById("prev").onclick = () => {
+    current = (current - 1 + songs.length) % songs.length;
+    loadSong(current);
+    playSong();
+};
+
+/* LOOP */
+document.getElementById("loop").onclick = (e) => {
+    isLoop = !isLoop;
+    audio.loop = isLoop;
+    e.target.classList.toggle("loop-active");
+};
+
+/* PROGRESS */
+audio.ontimeupdate = () => {
+    const percent = (audio.currentTime / audio.duration) * 100;
+    progress.style.width = percent + "%";
+};
+
+document.getElementById("progressContainer").onclick = (e) => {
+    const w = e.currentTarget.clientWidth;
+    audio.currentTime = (e.offsetX / w) * audio.duration;
+};
+
+/* PANEL */
+document.getElementById("toggle").onclick = () => {
+    panel.classList.toggle("open");
+};
+
+/* SONG LIST */
+function updateActiveSong(){
+    document.querySelectorAll(".song").forEach((el, i) => {
+        el.classList.toggle("active", i === current);
+    });
+}
+
+songs.forEach((s, i) => {
+    const div = document.createElement("div");
+    div.className = "song";
+    div.textContent = s.title + " - " + s.artist;
+
+    div.onclick = () => {
+        current = i;
+        loadSong(i);
+        playSong();
+    };
+
+    panel.appendChild(div);
+});
+
+/* INIT */
+loadSong(current);
+
+</script>
+
+</body>
+</html>
