@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reseñas - Music Stream</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg-dark: #081c34;
+    --sidebar: #061628;
+    --primary: #5c7ea6;
+    --card: #0f2a4a;
+    --accent: #4c6ef5;
+    --text: #fff;
+    --muted: #b0c4de;
+    --star-on: #fcc419;
+    --star-off: #1e3a5a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    display: flex;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+    width: 220px;
+    background: var(--sidebar);
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    padding: 24px 20px;
+    flex-shrink: 0;
+}
+
+.logo {
+    font-family: 'Syne', sans-serif;
+    font-style: italic;
+    font-weight: 800;
+    font-size: 18px;
+    margin-bottom: 36px;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.menu a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--muted);
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.menu a:hover, .menu a.active {
+    background: var(--card);
+    color: white;
+}
+
+/* ── MAIN ── */
+.main {
+    flex: 1;
+    padding: 36px 40px;
+    overflow-y: auto;
+}
+
+/* ── HEADER ── */
+.page-header {
+    margin-bottom: 40px;
+}
+
+.page-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.page-header p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 6px;
+}
+
+/* ── SONG TABS ── */
+.song-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+}
+
+.tab {
+    padding: 8px 18px;
+    border-radius: 999px;
+    border: 1.5px solid #1e3a5a;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.tab:hover { border-color: var(--accent); color: white; }
+.tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    font-weight: 500;
+}
+
+/* ── SONG INFO BANNER ── */
+.song-banner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--card);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 32px;
+    transition: 0.4s;
+    position: relative;
+    overflow: hidden;
+}
+
+.song-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    background: var(--banner-color, var(--accent));
+    pointer-events: none;
+}
+
+.banner-cover {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+}
+
+.banner-info h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.banner-info p { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+.banner-stats {
+    margin-left: auto;
+    text-align: right;
+}
+
+.avg-score {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--star-on);
+    line-height: 1;
+}
+
+.avg-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── REVIEWS GRID ── */
+.reviews-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+/* ── REVIEW CARDS ── */
+.reviews-list { display: flex; flex-direction: column; gap: 14px; }
+
+.review-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px 18px;
+    border-left: 3px solid transparent;
+    animation: fadeIn 0.4s ease both;
+    transition: transform 0.2s;
+}
+
+.review-card:hover { transform: translateX(4px); }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.review-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.reviewer-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.review-stars { color: var(--star-on); font-size: 13px; letter-spacing: 1px; }
+.review-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.review-date { font-size: 11px; color: #3a5a7a; margin-top: 8px; }
+
+/* ── WRITE REVIEW PANEL ── */
+.write-panel {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 24px;
+    position: sticky;
+    top: 20px;
+}
+
+.write-panel h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.field-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    display: block;
+}
+
+.field-input {
+    width: 100%;
+    background: #0a1f38;
+    border: 1.5px solid #1e3a5a;
+    border-radius: 8px;
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 10px 12px;
+    margin-bottom: 16px;
+    transition: 0.2s;
+    outline: none;
+}
+
+.field-input:focus { border-color: var(--accent); }
+
+textarea.field-input {
+    resize: none;
+    height: 90px;
+}
+
+/* STAR RATING */
+.star-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.star-btn {
+    font-size: 26px;
+    cursor: pointer;
+    color: var(--star-off);
+    transition: 0.15s;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+}
+
+.star-btn.lit { color: var(--star-on); transform: scale(1.1); }
+.star-btn:hover { transform: scale(1.2); }
+
+/* SUBMIT */
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    letter-spacing: 0.5px;
+}
+
+.submit-btn:hover { background: #3b5bdb; transform: translateY(-1px); }
+.submit-btn:active { transform: translateY(0); }
+
+/* SUCCESS TOAST */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #1e3a5a;
+    border: 1.5px solid var(--accent);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 999px;
+    font-size: 14px;
+    transition: 0.4s;
+    z-index: 999;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+    .reviews-section { grid-template-columns: 1fr; }
+    .write-panel { position: static; }
+}
+
+@media (max-width: 700px) {
+    .sidebar { display: none; }
+    .main { padding: 20px; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .banner-stats { display: none; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="logo">Music Stream</div>
+    <div class="menu">
+        <a href="index.html">Inicio</a>
+        <a href="biblioteca.html">Biblioteca</a>
+        <a href="reproductor.html">Reproductor</a>
+        <a href="reseñas.html" class="active">Resenas</a>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <div class="page-header">
+        <h2>Resenas</h2>
+        <p>Califica y comenta las canciones de nuestro grupo</p>
+    </div>
+
+    <!-- TABS -->
+    <div class="song-tabs" id="tabs"></div>
+
+    <!-- BANNER -->
+    <div class="song-banner" id="banner">
+        <div class="banner-cover" id="bannerCover"></div>
+        <div class="banner-info">
+            <h3 id="bannerTitle"></h3>
+            <p id="bannerArtist"></p>
+        </div>
+        <div class="banner-stats">
+            <div class="avg-score" id="avgScore">—</div>
+            <div class="avg-label">Promedio</div>
+        </div>
+    </div>
+
+    <!-- REVIEWS + WRITE -->
+    <div class="reviews-section">
+        <div class="reviews-list" id="reviewsList"></div>
+
+        <div class="write-panel">
+            <h4>Deja tu resena</h4>
+
+            <label class="field-label">Tu nombre</label>
+            <input class="field-input" id="inputName" type="text" placeholder="Ej: María G.">
+
+            <label class="field-label">Puntuación</label>
+            <div class="star-row" id="starRow">
+                <button class="star-btn" data-v="1">★</button>
+                <button class="star-btn" data-v="2">★</button>
+                <button class="star-btn" data-v="3">★</button>
+                <button class="star-btn" data-v="4">★</button>
+                <button class="star-btn" data-v="5">★</button>
+            </div>
+
+            <label class="field-label">Tu opinión</label>
+            <textarea class="field-input" id="inputText" placeholder="¿Qué te pareció la canción?"></textarea>
+
+            <button class="submit-btn" onclick="submitReview()">Publicar resena</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Resena publicada!</div>
+
+<script>
+/* ── DATA ── */
+const songs = [
+    {
+        title: "V1ViD",
+        artist: "Jennifer",
+        cover: "https://i.pinimg.com/736x/2b/00/ca/2b00ca59cf2363554ebcd0081e246dfd.jpg",
+        color: "#f06595"
+    },
+    {
+        title: "Till 2AM",
+        artist: "Luciana",
+        cover: "https://i.pinimg.com/736x/25/4c/28/254c28cc1158f67fd8fbf3303372d4d7.jpg",
+        color: "#5c7cfa"
+    },
+    {
+        title: "Midnight Engine Chase",
+        artist: "Mia",
+        cover: "https://i.pinimg.com/1200x/1e/4f/ca/1e4fca5deebeef628a036947805b89f0.jpg",
+        color: "#38d9a9"
+    },
+    {
+        title: "Cuento Chino",
+        artist: "Misu",
+        cover: "https://i.pinimg.com/736x/f2/f3/b1/f2f3b10f1e24055248b08f96e242a1a2.jpg",
+        color: "#ff922b"
+    }
+];
+
+/* ── RESEÑAS PREFABRICADAS ── */
+const seedReviews = [
+    // V1ViD
+    [
+        { name: "Camila R.", stars: 5, text: "Me encantó la energía de esta canción, literalmente no puedo parar de escucharla.", date: "12 abr 2026" },
+        { name: "Sebastián M.", stars: 4, text: "Muy buen beat, se siente profesional. Le falta un poco más de variación en el puente.", date: "14 abr 2026" },
+        { name: "Valeria T.", stars: 5, text: "Jenni lo hizo increíble, suena tan real y con mucha actitud 🔥", date: "18 abr 2026" }
+    ],
+    // Till 2AM
+    [
+        { name: "Daniela F.", stars: 5, text: "Para escuchar de noche es perfecta, tiene ese vibe melancólico que me encanta.", date: "10 abr 2026" },
+        { name: "Andrés P.", stars: 4, text: "Luciana tiene una producción muy limpia, se escucha muy bien con audífonos.", date: "15 abr 2026" },
+        { name: "Sofía L.", stars: 5, text: "Mi favorita del grupo sin duda, la pongo en repeat siempre.", date: "20 abr 2026" }
+    ],
+    // Midnight Engine Chase
+    [
+        { name: "Mateo G.", stars: 4, text: "Muy cinematográfica, parece música de película. Mia tiene un estilo único.", date: "11 abr 2026" },
+        { name: "Isabella C.", stars: 5, text: "Cuando la escucho siento que estoy en una escena de acción jajaja, demasiado buena.", date: "16 abr 2026" },
+        { name: "Renata V.", stars: 3, text: "Está bien, pero siento que le falta algo en el final. Igual muy bien producida.", date: "19 abr 2026" }
+    ],
+    // Cuento Chino
+    [
+        { name: "Luna B.", stars: 5, text: "Misu sorprendió a todos con esta, el ritmo es adictivo de verdad.", date: "13 abr 2026" },
+        { name: "Felipe A.", stars: 4, text: "Tiene una vibra muy original, no suena a nada que haya escuchado antes.", date: "17 abr 2026" },
+        { name: "Mariana S.", stars: 5, text: "La mejor del proyecto en mi opinión, se merece más reproducciones 🎶", date: "21 abr 2026" }
+    ]
+];
+
+/* ── STATE ── */
+let current = 0;
+let userRating = 0;
+
+/* ── INIT ── */
+function init() {
+    buildTabs();
+    loadSong(0);
+}
+
+function buildTabs() {
+    const tabs = document.getElementById("tabs");
+    songs.forEach((s, i) => {
+        const btn = document.createElement("button");
+        btn.className = "tab" + (i === 0 ? " active" : "");
+        btn.textContent = s.title;
+        btn.onclick = () => loadSong(i);
+        tabs.appendChild(btn);
+    });
+}
+
+function loadSong(i) {
+    current = i;
+
+    // tabs
+    document.querySelectorAll(".tab").forEach((t, idx) => {
+        t.classList.toggle("active", idx === i);
+    });
+
+    const s = songs[i];
+
+    // banner
+    document.getElementById("bannerCover").style.backgroundImage = `url(${s.cover})`;
+    document.getElementById("bannerTitle").textContent = s.title;
+    document.getElementById("bannerArtist").textContent = s.artist;
+    document.documentElement.style.setProperty("--banner-color", s.color);
+
+    renderReviews(i);
+    updateAvg(i);
+    resetStars();
+}
+
+/* ── REVIEWS ── */
+function getReviews(i) {
+    const stored = JSON.parse(localStorage.getItem("reviews_" + i) || "[]");
+    return [...seedReviews[i], ...stored];
+}
+
+function renderReviews(i) {
+    const list = document.getElementById("reviewsList");
+    list.innerHTML = "";
+    const all = getReviews(i);
+    const s = songs[i];
+
+    all.forEach((r, idx) => {
+        const card = document.createElement("div");
+        card.className = "review-card";
+        card.style.borderLeftColor = s.color;
+        card.style.animationDelay = (idx * 0.06) + "s";
+        card.innerHTML = `
+            <div class="review-top">
+                <span class="reviewer-name">${r.name}</span>
+                <span class="review-stars">${"★".repeat(r.stars)}${"☆".repeat(5 - r.stars)}</span>
+            </div>
+            <div class="review-text">${r.text}</div>
+            <div class="review-date">${r.date}</div>
+        `;
+        list.appendChild(card);
+    });
+}
+
+function updateAvg(i) {
+    const all = getReviews(i);
+    const avg = all.reduce((a, r) => a + r.stars, 0) / all.length;
+    document.getElementById("avgScore").textContent = avg.toFixed(1);
+}
+
+/* ── STARS ── */
+document.getElementById("starRow").addEventListener("mouseover", e => {
+    if (!e.target.classList.contains("star-btn")) return;
+    const v = +e.target.dataset.v;
+    highlightStars(v);
+});
+
+document.getElementById("starRow").addEventListener("mouseleave", () => {
+    highlightStars(userRating);
+});
+
+document.getElementById("starRow").addEventListener("click", e => {
+    if (!e.target.classList.contains("star-btn")) return;
+    userRating = +e.target.dataset.v;
+    highlightStars(userRating);
+});
+
+function highlightStars(v) {
+    document.querySelectorAll(".star-btn").forEach(btn => {
+        btn.classList.toggle("lit", +btn.dataset.v <= v);
+    });
+}
+
+function resetStars() {
+    userRating = 0;
+    highlightStars(0);
+}
+
+/* ── SUBMIT ── */
+function submitReview() {
+    const name = document.getElementById("inputName").value.trim();
+    const text = document.getElementById("inputText").value.trim();
+
+    if (!name || !text || userRating === 0) {
+        alert("Por favor completa tu nombre, puntuación y comentario.");
+        return;
+    }
+
+    const review = {
+        name,
+        stars: userRating,
+        text,
+        date: new Date().toLocaleDateString("es-PE", { day: "numeric", month: "short", year: "numeric" })
+    };
+
+    const stored = JSON.parse(localStorage.getItem("reviews_" + current) || "[]");
+    stored.push(review);
+    localStorage.setItem("reviews_" + current, JSON.stringify(stored));
+
+    document.getElementById("inputName").value = "";
+    document.getElementById("inputText").value = "";
+    resetStars();
+
+    renderReviews(current);
+    updateAvg(current);
+    showToast();
+}
+
+function showToast() {
+    const t = document.getElementById("toast");
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+init();
+</script>
+
+</body>
+</html>
