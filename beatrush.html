@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beat Rush - Music Stream</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #071a30;
+      font-family: 'DM Sans', sans-serif;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background:
+        radial-gradient(circle at top left, rgba(122,167,255,0.12), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(255,255,255,0.04), transparent 30%),
+        #071a30;
+    }
+
+    .game-box {
+      width: 520px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 28px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      text-align: center;
+      font-size: 42px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #bfd0e5;
+      margin-bottom: 22px;
+      font-size: 14px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      font-weight: 700;
+    }
+
+    .score {
+      font-size: 18px;
+    }
+
+    canvas {
+      display: block;
+      margin: auto;
+      background: #0d2747;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .hint {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 13px;
+      color: #bfd0e5;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-box">
+    <h1>Beat Rush</h1>
+    <p class="subtitle">Atrapa beats infinitos • Solo flechitas ↑ ↓ ← →</p>
+
+    <div class="top-bar">
+      <div class="score">Puntaje: <span id="score">0</span></div>
+      <div class="score">Record: <span id="best">0</span></div>
+    </div>
+
+    <canvas id="game" width="460" height="460"></canvas>
+
+    <p class="hint">
+      Mueve el beat con las flechas.<br>
+      Cada nota atrapada suma puntos y el juego acelera.
+    </p>
+  </div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+const bestEl = document.getElementById('best');
+
+const grid = 20;
+const size = canvas.width / grid;
+
+let score = 0;
+let best = localStorage.getItem('beatRushBest') || 0;
+bestEl.textContent = best;
+
+let player = { x: 10, y: 10 };
+let note = randomPosition();
+let velocity = { x: 1, y: 0 };
+let speed = 180;
+let started = false;
+let flashEffect = 0;
+
+function randomPosition() {
+  return {
+    x: Math.floor(Math.random() * grid),
+    y: Math.floor(Math.random() * grid)
+  };
+}
+
+function drawRounded(x, y, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.roundRect(x * size + 2, y * size + 2, size - 4, size - 4, 8);
+  ctx.fill();
+}
+
+function drawCircle(x, y, color) {
+  ctx.fillStyle = color;
+  ctx.font = `${size - 4}px Arial`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('♪', x * size + size / 2, y * size + size / 2 + 1);
+}
+
+function update() {
+  player.x += velocity.x;
+  player.y += velocity.y;
+
+  if (player.x < 0) player.x = grid - 1;
+  if (player.x >= grid) player.x = 0;
+  if (player.y < 0) player.y = grid - 1;
+  if (player.y >= grid) player.y = 0;
+
+  if (player.x === note.x && player.y === note.y) {
+    flashEffect = 1;
+    score++;
+    scoreEl.textContent = score;
+    note = randomPosition();
+
+    if (score > best) {
+      best = score;
+      bestEl.textContent = best;
+      localStorage.setItem('beatRushBest', best);
+    }
+
+    if (speed > 70) speed -= 4;
+    restartLoop();
+  }
+}
+
+function draw() {
+  if (flashEffect > 0) {
+    const box = document.querySelector('.game-box');
+    box.style.boxShadow = `0 0 ${30 + flashEffect * 30}px rgba(122,167,255,0.45)`;
+    flashEffect -= 0.08;
+  } else {
+    document.querySelector('.game-box').style.boxShadow = '0 20px 50px rgba(0,0,0,0.25)';
+  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  drawRounded(player.x, player.y, '#7aa7ff');
+  drawCircle(note.x, note.y, '#ffffff');
+}
+
+let loop;
+
+function gameLoop() {
+  update();
+  draw();
+}
+
+function restartLoop() {
+  clearInterval(loop);
+  loop = setInterval(gameLoop, speed);
+}
+
+document.addEventListener('keydown', (e) => {
+  started = true;
+
+  if (e.key === 'ArrowUp' && velocity.y !== 1) {
+    velocity = { x: 0, y: -1 };
+  }
+  if (e.key === 'ArrowDown' && velocity.y !== -1) {
+    velocity = { x: 0, y: 1 };
+  }
+  if (e.key === 'ArrowLeft' && velocity.x !== 1) {
+    velocity = { x: -1, y: 0 };
+  }
+  if (e.key === 'ArrowRight' && velocity.x !== -1) {
+    velocity = { x: 1, y: 0 };
+  }
+});
+
+draw();
+restartLoop();
+</script>
+
+</body>
+</html>
