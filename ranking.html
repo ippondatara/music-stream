@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ranking - Music Stream</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg-dark: #081c34;
+    --sidebar: #061628;
+    --card: #0f2a4a;
+    --accent: #4c6ef5;
+    --text: #fff;
+    --muted: #b0c4de;
+    --gold: #fcc419;
+    --silver: #adb5bd;
+    --bronze: #cd7f32;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    display: flex;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 220px;
+    background: var(--sidebar);
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    padding: 24px 20px;
+    flex-shrink: 0;
+}
+
+.logo {
+    font-family: 'Syne', sans-serif;
+    font-style: italic;
+    font-weight: 800;
+    font-size: 18px;
+    margin-bottom: 36px;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.menu a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--muted);
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.menu a:hover, .menu a.active {
+    background: var(--card);
+    color: white;
+}
+
+/* MAIN */
+.main {
+    flex: 1;
+    padding: 36px 40px;
+    overflow-y: auto;
+}
+
+/* HEADER */
+.page-header {
+    margin-bottom: 48px;
+}
+
+.page-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.page-header p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 6px;
+}
+
+/* PODIO */
+.podium-section {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 56px;
+}
+
+.podium-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.podium-item:hover { transform: translateY(-4px); }
+
+.podium-cover {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.podium-item.first .podium-cover {
+    width: 100px;
+    height: 100px;
+    border-radius: 14px;
+    box-shadow: 0 0 30px rgba(252, 196, 25, 0.35);
+}
+
+.podium-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.podium-item.first .podium-badge  { background: var(--gold);   color: #000; }
+.podium-item.second .podium-badge { background: var(--silver); color: #000; }
+.podium-item.third .podium-badge  { background: var(--bronze); color: #fff; }
+
+.podium-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    max-width: 100px;
+}
+
+.podium-count {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.podium-block {
+    border-radius: 10px 10px 0 0;
+    width: 80px;
+}
+
+.podium-item.first  .podium-block { height: 100px; background: linear-gradient(180deg, rgba(252,196,25,0.3), rgba(252,196,25,0.05)); border-top: 2px solid var(--gold); }
+.podium-item.second .podium-block { height: 70px;  background: linear-gradient(180deg, rgba(173,181,189,0.3), rgba(173,181,189,0.05)); border-top: 2px solid var(--silver); }
+.podium-item.third  .podium-block { height: 50px;  background: linear-gradient(180deg, rgba(205,127,50,0.3), rgba(205,127,50,0.05)); border-top: 2px solid var(--bronze); }
+
+/* LISTA FULL */
+.list-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.rank-list { display: flex; flex-direction: column; gap: 12px; }
+
+.rank-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.rank-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 3px 0 0 3px;
+}
+
+.rank-card.r1::before { background: var(--gold); }
+.rank-card.r2::before { background: var(--silver); }
+.rank-card.r3::before { background: var(--bronze); }
+.rank-card.r4::before { background: #2a4a6a; }
+
+.rank-card:hover { background: #14365e; transform: translateX(4px); }
+
+.rank-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    width: 30px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.r1 .rank-number { color: var(--gold); }
+.r2 .rank-number { color: var(--silver); }
+.r3 .rank-number { color: var(--bronze); }
+.r4 .rank-number { color: #3a5a7a; }
+
+.rank-cover {
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+.rank-info { flex: 1; }
+
+.rank-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.rank-artist {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+/* BAR */
+.rank-bar-wrap {
+    flex: 1;
+    max-width: 200px;
+}
+
+.rank-bar-bg {
+    height: 6px;
+    background: #1a3a5a;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.rank-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    width: 0%;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.r1 .rank-bar-fill { background: var(--gold); }
+.r2 .rank-bar-fill { background: var(--silver); }
+.r3 .rank-bar-fill { background: var(--bronze); }
+.r4 .rank-bar-fill { background: #3a6a9a; }
+
+.rank-plays {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    text-align: right;
+    min-width: 60px;
+}
+
+.plays-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: right;
+    margin-top: 2px;
+}
+
+/* LAST UPDATED */
+.updated {
+    margin-top: 24px;
+    font-size: 12px;
+    color: #2a4a6a;
+    text-align: right;
+}
+
+/* TOAST */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #1e3a5a;
+    border: 1.5px solid var(--accent);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 999px;
+    font-size: 14px;
+    transition: 0.4s;
+    z-index: 999;
+    white-space: nowrap;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* RESPONSIVE */
+@media (max-width: 700px) {
+    .sidebar { display: none; }
+    .main { padding: 20px; }
+    .rank-bar-wrap { display: none; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="logo">Music Stream</div>
+    <div class="menu">
+        <a href="index.html">Inicio</a>
+        <a href="biblioteca.html">Biblioteca</a>
+        <a href="reproductor.html">Reproductor</a>
+        <a href="reseñas.html">Resenas</a>
+        <a href="ranking.html" class="active">Ranking</a>
+    </div>
+</div>
+
+<div class="main">
+
+    <div class="page-header">
+        <h2>Ranking</h2>
+        <p>Las canciones mas reproducidas. Cada visita al reproductor cuenta.</p>
+    </div>
+
+    <!-- PODIO -->
+    <div class="podium-section" id="podium"></div>
+
+    <!-- LISTA -->
+    <div class="list-section">
+        <h3>Clasificacion completa</h3>
+        <div class="rank-list" id="rankList"></div>
+    </div>
+
+    <div class="updated" id="updated"></div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const songs = [
+    {
+        title: "Cuento Chino",
+        artist: "Misu",
+        cover: "https://i.pinimg.com/736x/f2/f3/b1/f2f3b10f1e24055248b08f96e242a1a2.jpg",
+        base: 3847
+    },
+    {
+        title: "Midnight Engine Chase",
+        artist: "Mia",
+        cover: "https://i.pinimg.com/1200x/1e/4f/ca/1e4fca5deebeef628a036947805b89f0.jpg",
+        base: 2914
+    },
+    {
+        title: "Till 2AM",
+        artist: "Luciana",
+        cover: "https://i.pinimg.com/736x/25/4c/28/254c28cc1158f67fd8fbf3303372d4d7.jpg",
+        base: 2103
+    },
+    {
+        title: "V1ViD",
+        artist: "Jennifer",
+        cover: "https://i.pinimg.com/736x/2b/00/ca/2b00ca59cf2363554ebcd0081e246dfd.jpg",
+        base: 874
+    }
+];
+
+/* Cargar plays guardados o usar base */
+function getPlays() {
+    const stored = JSON.parse(localStorage.getItem("ms_plays") || "null");
+    if (stored) return stored;
+    const init = {};
+    songs.forEach((s, i) => init[i] = s.base);
+    localStorage.setItem("ms_plays", JSON.stringify(init));
+    return init;
+}
+
+function savePlays(plays) {
+    localStorage.setItem("ms_plays", JSON.stringify(plays));
+}
+
+/* Ordenar por plays */
+function getSorted(plays) {
+    return songs
+        .map((s, i) => ({ ...s, index: i, plays: plays[i] }))
+        .sort((a, b) => b.plays - a.plays);
+}
+
+/* PODIO */
+function buildPodium(sorted) {
+    const podium = document.getElementById("podium");
+    podium.innerHTML = "";
+
+    const order = [sorted[1], sorted[0], sorted[2]]; // 2do, 1ro, 3ro
+    const classes = ["second", "first", "third"];
+    const labels = ["2", "1", "3"];
+
+    order.forEach((s, i) => {
+        const div = document.createElement("div");
+        div.className = `podium-item ${classes[i]}`;
+        div.onclick = () => addPlay(s.index);
+        div.innerHTML = `
+            <div class="podium-cover" style="background-image:url(${s.cover})">
+                <div class="podium-badge">${labels[i]}</div>
+            </div>
+            <div class="podium-name">${s.title}</div>
+            <div class="podium-count">${s.plays.toLocaleString()} plays</div>
+            <div class="podium-block"></div>
+        `;
+        podium.appendChild(div);
+    });
+}
+
+/* LISTA */
+function buildList(sorted) {
+    const list = document.getElementById("rankList");
+    list.innerHTML = "";
+    const max = sorted[0].plays;
+
+    sorted.forEach((s, i) => {
+        const pct = ((s.plays / max) * 100).toFixed(1);
+        const card = document.createElement("div");
+        card.className = `rank-card r${i + 1}`;
+        card.onclick = () => addPlay(s.index);
+        card.innerHTML = `
+            <div class="rank-number">${i + 1}</div>
+            <div class="rank-cover" style="background-image:url(${s.cover})"></div>
+            <div class="rank-info">
+                <div class="rank-title">${s.title}</div>
+                <div class="rank-artist">${s.artist}</div>
+            </div>
+            <div class="rank-bar-wrap">
+                <div class="rank-bar-bg">
+                    <div class="rank-bar-fill" data-pct="${pct}"></div>
+                </div>
+            </div>
+            <div>
+                <div class="rank-plays">${s.plays.toLocaleString()}</div>
+                <div class="plays-label">reproducciones</div>
+            </div>
+        `;
+        list.appendChild(card);
+    });
+
+    // Animar barras
+    setTimeout(() => {
+        document.querySelectorAll(".rank-bar-fill").forEach(bar => {
+            bar.style.width = bar.dataset.pct + "%";
+        });
+    }, 100);
+}
+
+/* AGREGAR PLAY */
+function addPlay(index) {
+    const plays = getPlays();
+    plays[index]++;
+    savePlays(plays);
+
+    const sorted = getSorted(plays);
+    buildPodium(sorted);
+    buildList(sorted);
+
+    const song = songs[index];
+    showToast(`+1 reproduccion para ${song.title}`);
+    updateTimestamp();
+}
+
+/* TOAST */
+function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2500);
+}
+
+/* TIMESTAMP */
+function updateTimestamp() {
+    const now = new Date();
+    document.getElementById("updated").textContent =
+        "Actualizado: " + now.toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
+}
+
+/* INIT */
+function init() {
+    const plays = getPlays();
+    const sorted = getSorted(plays);
+    buildPodium(sorted);
+    buildList(sorted);
+    updateTimestamp();
+}
+
+init();
+</script>
+
+</body>
+</html>
