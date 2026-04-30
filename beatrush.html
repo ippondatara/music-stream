@@ -672,11 +672,30 @@ document.addEventListener('keyup',e=>{keys[e.key]=false;});
 
 /* ── Reintentar: detener música → 3s silencio → nueva partida → nueva música ── */
 document.getElementById('retryBtn').addEventListener('click', () => {
+  const btn = document.getElementById('retryBtn');
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  btn.style.cursor = 'not-allowed';
   stopMusic();
-  setTimeout(() => {
-    resetGame();
-    startMusic();
-  }, 3000);
+
+  let count = 3;
+  btn.textContent = count;
+
+  const interval = setInterval(() => {
+    count--;
+    if (count > 0) {
+      btn.textContent = count;
+    } else {
+      clearInterval(interval);
+      btn.textContent = 'Reintentar';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      document.getElementById('overlay').style.display = 'none';
+      resetGame();
+      startMusic();
+    }
+  }, 1000);
 });
 
 /* ── Inicio ── */
