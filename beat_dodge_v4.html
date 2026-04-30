@@ -59,24 +59,6 @@ const stars=Array.from({length:70},()=>({
   speed:0.02+Math.random()*0.05,vy:-(0.08+Math.random()*0.18)
 }));
 
-
-function drawBg(){
-  bgCtx.clearRect(0,0,W,H);
-@@ -79,16 +66,6 @@ <h1>Beat Rush</h1>
-    bgCtx.fillStyle=g2;bgCtx.beginPath();bgCtx.arc(l.x,l.y,l.r*(1+bgPulse*0.6),0,Math.PI*2);bgCtx.fill();
-  });
-
-  // stars
-  stars.forEach(s=>{
-    s.phase+=s.speed*(1+bgPulse*0.4);s.y+=s.vy;if(s.y<-4)s.y=H+4;
-    const a=(0.15+0.65*Math.abs(Math.sin(s.phase)))*(0.4+bgPulse*0.5);
-    bgCtx.beginPath();bgCtx.fillStyle=`rgba(255,255,255,${a})`;
-    bgCtx.arc(s.x,s.y,s.r*(1+bgPulse*0.3),0,Math.PI*2);bgCtx.fill();
-  });
-  if(bgPulse>0)bgPulse*=0.87;
-}
-
-
 function drawBg(){
   bgCtx.clearRect(0,0,W,H);
   bgCtx.fillStyle='#091c35';bgCtx.fillRect(0,0,W,H);
@@ -96,6 +78,16 @@ function drawBg(){
     g2.addColorStop(1,`rgba(${r},${g},${b},0)`);
     bgCtx.fillStyle=g2;bgCtx.beginPath();bgCtx.arc(l.x,l.y,l.r*(1+bgPulse*0.6),0,Math.PI*2);bgCtx.fill();
   });
+
+  // stars
+  stars.forEach(s=>{
+    s.phase+=s.speed*(1+bgPulse*0.4);s.y+=s.vy;if(s.y<-4)s.y=H+4;
+    const a=(0.15+0.65*Math.abs(Math.sin(s.phase)))*(0.4+bgPulse*0.5);
+    bgCtx.beginPath();bgCtx.fillStyle=`rgba(255,255,255,${a})`;
+    bgCtx.arc(s.x,s.y,s.r*(1+bgPulse*0.3),0,Math.PI*2);bgCtx.fill();
+  });
+  if(bgPulse>0)bgPulse*=0.87;
+}
 
 // ── Helpers ──
 function rand(a,b){return a+Math.random()*(b-a);}
